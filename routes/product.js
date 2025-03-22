@@ -1,39 +1,55 @@
 var express = require('express');
 var router = express.Router();
-var productModel = require('../schemas/product');
-var {CreateErrorResponse, CreateSuccessResponse} = require('../utils/responseHandler');
+let productController = require('../controllers/product');
+let { CreateSuccessResponse } = require('../utils/responseHandler');
+let { check_authentication, check_authorization } = require('../utils/check_auth');
+let constants = require('../utils/constants');
 
 /* GET users listing. */
 router.get('/', async function (req, res, next) {
-  let products = await productModel.find({});
+  let products = await productController.getAllProduct();
   CreateSuccessResponse(res, products, 200);
-  res.send(products);
 });
 
 router.get('/:id', async function (req, res, next) {
-  let products = await productModel.findById(req.params.id);
+  let products = await productController.getProductById(req.params.id);
   CreateSuccessResponse(res, products, 200);
-  res.send(products);
 });
 
-router.post('/add', async function (req, res, next) {
+router.post('/add', check_authentication, check_authorization(constants.MOD_PERMISSION),async function (req, res, next) {
   try {
     let body = req.body;
-
-    let newProduct = new productModel({
-      name: body.name,
-      description: body.description,
-      quantity: body.quantity,
-      price: body.price,
-      urlImg: body.urlImg,
-      category: body.category
-    });
-
-    await newProduct.save();
+    let newProduct = await productController.CreateNewProduct(body);
     CreateSuccessResponse(res, newProduct, 200);
   }
   catch (error) {
-    CreateErrorResponse(res, error, 404);
+    next(error)
+  }
+});
+
+router.put('/:id', check_authentication, check_authorization(constants.MOD_PERMISSION), async function (req, res, next) {
+  let id = req.params.id;
+  try {
+    let body = req.body
+    let updateProduct = await productController.ModifyProduct(id, body);
+    CreateSuccessResponse(res, updateProduct, 200);
+  } catch (error) {
+    next(error)
+  }
+});
+
+router.delete('/:id', check_authentication, check_authorization(constants.ADMIN_PERMISSION), async function (req, res, next) {
+  let id = req.params.id;
+  try {
+    let body = req.body
+    let updateProduct = await productModel.findByIdAndUpdate(
+      id, {
+      isDeleted: true
+    }, { new: true }
+    )
+    CreateSuccessResponse(res, updateProduct, 200);
+  } catch (error) {
+    next(error)
   }
 });
 
