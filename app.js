@@ -8,7 +8,10 @@ var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/user');
 var roleRouter = require('./routes/role');
 var productRouter = require('./routes/product');
+var productAttributeRouter = require('./routes/productAttribute');
 var categoryRouter = require('./routes/category');
+var supplierRouter = require('./routes/supplier');
+var menuRouter = require('./routes/menu');
 var authRouter = require('./routes/auth');
 const { CreateErrorResponse } = require('./utils/responseHandler');
 
@@ -29,7 +32,10 @@ app.use('/', indexRouter);
 app.use('/user', usersRouter);
 app.use('/role', roleRouter);
 app.use('/product', productRouter);
+app.use('/product_attribute', productAttributeRouter);
 app.use('/category', categoryRouter);
+app.use('/supplier', supplierRouter);
+app.use('/menu', menuRouter);
 app.use('/auth', authRouter);
 
 // catch 404 and forward to error handler

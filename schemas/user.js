@@ -4,22 +4,24 @@ let bcrypt = require('bcrypt');
 const userSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: true, },
   password: { type: String, required: true, },
-  email: { type: String, required: true,unique: true, },
+  email: { type: String, required: true, unique: true, },
   fullName: { type: String, default: '', },
   avatarUrl: { type: String, default: '', },
   status: { type: Boolean, default: false, },
-  role: { type: mongoose.Schema.Types.ObjectId, ref: 'role'},
-  loginCount: { type: Number, default: 0, min: 0},
+  role: { type: mongoose.Schema.Types.ObjectId, ref: 'role' },
+  loginCount: { type: Number, default: 0, min: 0 },
   isDeleted: { type: Boolean, default: false, },
-},{   
+  resetPasswordToken: String,
+  resetPasswordTokenExp: Date
+}, {
   timestamps: true,
 });
 
-userSchema.pre('save',function(next){
-  if(this.isModified("password")){
-      let salt = bcrypt.genSaltSync(10);
-      let encrypted = bcrypt.hashSync(this.password+"",salt);
-      this.password =encrypted;
+userSchema.pre('save', function (next) {
+  if (this.isModified("password")) {
+    let salt = bcrypt.genSaltSync(10);
+    let encrypted = bcrypt.hashSync(this.password + "", salt);
+    this.password = encrypted;
   }
   next()
 })

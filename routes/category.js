@@ -4,6 +4,7 @@ let categoryModel = require('../schemas/category');
 let {CreateSuccessResponse } = require('../utils/responseHandler')
 let { check_authentication, check_authorization } = require('../utils/check_auth');
 let constants = require('../utils/constants');
+const { generateSlug } = require('../utils/generate_slug');
 
 /* GET users listing. */
 router.get('/', async function (req, res, next) {
@@ -25,11 +26,12 @@ router.get('/:id', async function (req, res, next) {
     }
 
 });
-router.post('/add', check_authentication, check_authorization(constants.MOD_PERMISSION), async function (req, res, next) {
+router.post('/add', check_authentication, async function (req, res, next) {
     try {
         let body = req.body
         let newCategory = new categoryModel({
             name: body.name,
+            slug: generateSlug(body.name),
             description: body.description,
         })
         await newCategory.save();
@@ -38,13 +40,14 @@ router.post('/add', check_authentication, check_authorization(constants.MOD_PERM
         next(error)
     }
 });
-router.put('/:id', check_authentication, check_authorization(constants.MOD_PERMISSION),async function (req, res, next) {
+router.put('/:id', check_authentication, check_authorization(constants.USER_PERMISSION),async function (req, res, next) {
     let id = req.params.id;
     try {
         let body = req.body
         let updatedInfo = {};
         if (body.name) {
             updatedInfo.name = body.name;
+            updatedInfo.slug = generateSlug(body.name);
         }
         if (body.description) {
             updatedInfo.description = body.description;

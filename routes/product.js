@@ -16,7 +16,20 @@ router.get('/:id', async function (req, res, next) {
   CreateSuccessResponse(res, products, 200);
 });
 
-router.post('/add', check_authentication, check_authorization(constants.MOD_PERMISSION),async function (req, res, next) {
+router.get("/:slugcategory/:slugproduct", async function (req, res, next) {
+  try{
+    let slugcategory = req.params.slugcategory;
+    let slugproduct = req.params.slugproduct;
+    let product = await productController.getProductBySlug(slugcategory, slugproduct);
+    CreateSuccessResponse(res, product, 200);
+  }
+  catch (error) {
+    next(error)
+  }
+
+})
+
+router.post('/add', async function (req, res, next) {
   try {
     let body = req.body;
     let newProduct = await productController.CreateNewProduct(body);
@@ -27,7 +40,7 @@ router.post('/add', check_authentication, check_authorization(constants.MOD_PERM
   }
 });
 
-router.put('/:id', check_authentication, check_authorization(constants.MOD_PERMISSION), async function (req, res, next) {
+router.put('/:id', async function (req, res, next) {
   let id = req.params.id;
   try {
     let body = req.body
@@ -38,15 +51,10 @@ router.put('/:id', check_authentication, check_authorization(constants.MOD_PERMI
   }
 });
 
-router.delete('/:id', check_authentication, check_authorization(constants.ADMIN_PERMISSION), async function (req, res, next) {
+router.delete('/:id', async function (req, res, next) {
   let id = req.params.id;
   try {
-    let body = req.body
-    let updateProduct = await productModel.findByIdAndUpdate(
-      id, {
-      isDeleted: true
-    }, { new: true }
-    )
+    let updateProduct = await productController.DeleteProduct(id);
     CreateSuccessResponse(res, updateProduct, 200);
   } catch (error) {
     next(error)

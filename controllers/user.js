@@ -69,7 +69,7 @@ module.exports = {
                 })
                 return await user.save();
             } else {
-                throw new Error("khong tim thay")
+                throw new Error("khong tim thay role")
             }
         } catch (error) {
             throw new Error(error.message)
@@ -156,5 +156,21 @@ module.exports = {
         }else{
             throw new Error('oldpassword khong dung')
         }
-    }
+    },
+
+    GetUserByEmail: async function (email) {
+        return await userModel.findOne({
+            email:email
+        }).populate({
+            path:'role',select:'name'
+        });
+    },
+    
+    GetUserByToken: async function (token) {
+        return await userModel.findOne({
+            resetPasswordToken:token
+        }).populate({
+            path:'role',select:'name'
+        });
+    },
 }
